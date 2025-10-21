@@ -1,0 +1,64 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+#dollarSign {
+    position: absolute;
+    margin-top: 11px;
+    margin-left: 17px;
+    font-size: 14px;
+    color: #000;
+}
+#isInput {
+    padding-left: 40px;
+}
+.line-clamp-1 {
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 1 !important;
+}
+.line-clamp-2 {
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+}
+.line-clamp-3 {
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+}
+
+/* Summer Note Style */
+.note-btn {
+    padding: 5px 5px 5px 5px !important;
+    height: 35px !important;
+}
+.note-btn-group {
+    height: fit-content !important;
+}
+.note-toolbar {
+    min-height: 50px !important;
+    display: block !important;
+    border-bottom: 2px solid #8080806b !important;
+}
+
+/* Style Color Card */
+.bg-c-blue {
+    background: linear-gradient(45deg,#4099ff,#73b4ff);
+}
+
+.bg-c-green {
+    background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+}
+
+.bg-c-yellow {
+    background: linear-gradient(45deg,#FFB64D,#ffcb80);
+}
+
+.bg-c-pink {
+    background: linear-gradient(45deg,#FF5370,#ff869a);
+}
