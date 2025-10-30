@@ -18,6 +18,7 @@ class Blog extends Model
         'content',
         'special_role',
         'status',
+        'views'
     ];
 
     public function category()
@@ -40,5 +41,30 @@ class Blog extends Model
     public function bookmarkedBy()
     {
         return $this->belongsToMany(User::class, 'bookmarks')->withTimestamps();
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('special_role', 2);
+    }
+
+    public function scopeTop($query)
+    {
+        return $query->orderByDesc('views');
+    }
+
+    public function scopeNewest($query)
+    {
+        return $query->latest();
+    }
+
+    public function incrementViews()
+    {
+        $this->increment('views');
     }
 }

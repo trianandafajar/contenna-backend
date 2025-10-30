@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\BlogApiController;
+use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\LogoApiController;
+use App\Http\Controllers\Api\TagApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,9 +20,19 @@ use App\Http\Controllers\Api\LogoApiController;
 
 // Public routes (no authentication required)
 Route::prefix('blogs')->group(function () {
-    Route::get('/', [BlogApiController::class, 'index']); // List blogs
-    Route::get('/search', [BlogApiController::class, 'search']); // Search blogs
-    Route::get('/{id}', [BlogApiController::class, 'show']); // Get single blog
+    Route::get('/', [BlogApiController::class, 'index']);
+    Route::get('/search', [BlogApiController::class, 'search']);
+    Route::get('/{blog:slug}', [BlogApiController::class, 'show']);
+});
+
+Route::prefix('tags')->group(function() {
+    Route::get('/', [TagApiController::class, 'index']);
+    Route::get('/{tag:slug}', [TagApiController::class, 'show']);
+});
+
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryApiController::class, 'index']);
+    Route::get('/{category:slug}', [CategoryApiController::class, 'show']);
 });
 
 // Protected routes (authentication required)

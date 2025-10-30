@@ -7,6 +7,7 @@ use App\Http\Resources\BlogResource;
 use App\Http\Resources\BlogCollection;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
+use App\Http\Resources\BlogListResource;
 use App\Models\Blog;
 use App\Models\Tag;
 use App\Models\Category;
@@ -27,59 +28,52 @@ class BlogApiController extends Controller
         $search = $request->get('search');
         $category = $request->get('category');
         $tag = $request->get('tag');
-        $status = $request->get('status', '1'); // Default to published
+        $status = $request->get('status', '1');
         $sort = $request->get('sort', 'newest');
 
         $query = Blog::with(['category', 'user', 'tags'])
-            ->where('status', $status);
-
-        // Search functionality
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%{$search}%")
-                    ->orWhere('content', 'LIKE', "%{$search}%")
-                    ->orWhereHas('category', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%{$search}%");
-                    })
-                    ->orWhereHas('tags', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%{$search}%");
-                    })
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%{$search}%");
-                    });
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($search, function ($q, $search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('title', 'LIKE', "%{$search}%")
+                        ->orWhere('content', 'LIKE', "%{$search}%")
+                        ->orWhereHas('category', fn($q) => $q->where('name', 'LIKE', "%{$search}%"))
+                        ->orWhereHas('tags', fn($q) => $q->where('name', 'LIKE', "%{$search}%"))
+                        ->orWhereHas('user', fn($q) => $q->where('name', 'LIKE', "%{$search}%"));
+                });
+            })
+            ->when(
+                $category,
+                fn($q) =>
+                $q->whereHas('category', fn($cat) => $cat->where('slug', $category))
+            )
+            ->when(
+                $tag,
+                fn($q) =>
+                $q->whereHas('tags', fn($t) => $t->where('slug', $tag))
+            )
+            ->when($sort, function ($q, $sort) {
+                return match ($sort) {
+                    'oldest' => $q->orderBy('created_at', 'asc'),
+                    'title' => $q->orderBy('title', 'asc'),
+                    'top' => $q->orderByDesc('views'),
+                    'featured' => $q->where('special_role', 2)->latest(),
+                    default => $q->latest(),
+                };
             });
-        }
-
-        // Filter by category
-        if ($category) {
-            $query->whereHas('category', function ($q) use ($category) {
-                $q->where('slug', $category);
-            });
-        }
-
-        // Filter by tag
-        if ($tag) {
-            $query->whereHas('tags', function ($q) use ($tag) {
-                $q->where('slug', $tag);
-            });
-        }
-
-        // Sorting
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'title':
-                $query->orderBy('title', 'asc');
-                break;
-            default:
-                $query->orderBy('created_at', 'desc');
-                break;
-        }
 
         $blogs = $query->paginate($perPage);
-
-        return new BlogCollection($blogs);
+        return response()->json([
+            'data' => BlogListResource::collection($blogs->items()),
+            'meta' => [
+                'current_page' => $blogs->currentPage(),
+                'last_page' => $blogs->lastPage(),
+                'per_page' => $blogs->perPage(),
+                'total' => $blogs->total(),
+                'from' => $blogs->firstItem(),
+                'to' => $blogs->lastItem(),
+            ],
+        ]);
     }
 
     /**
@@ -139,17 +133,24 @@ class BlogApiController extends Controller
     /**
      * Display the specified blog (PUBLIC - No Auth Required)
      */
-    public function show($id)
+    public function show(Blog $blog)
     {
-        $blog = Blog::with(['category', 'user', 'tags'])
-            ->where('status', '1')
-            ->findOrFail($id);
+        if ($blog->status !== '1') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Blog not found.'
+            ], 404);
+        }
+
+        $blog->increment('views');
+        $blog->load(['category', 'user', 'tags']);
 
         return response()->json([
             'status' => 'success',
             'data' => new BlogResource($blog)
         ]);
     }
+
 
     /**
      * Update the specified blog (PROTECTED - Auth Required)
@@ -271,62 +272,77 @@ class BlogApiController extends Controller
         $sort = $request->get('sort', 'newest');
 
         $query = Blog::with(['category', 'user', 'tags'])
-            ->where('status', $status);
+            ->when($status, fn($q) => $q->where('status', $status))
 
-        // Search in title and content
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%{$search}%")
-                    ->orWhere('content', 'LIKE', "%{$search}%");
+            ->when($search, function ($q, $search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('title', 'LIKE', "%{$search}%")
+                        ->orWhere('content', 'LIKE', "%{$search}%")
+                        ->orWhereHas('category', fn($q) => $q->where('name', 'LIKE', "%{$search}%"))
+                        ->orWhereHas('tags', fn($q) => $q->where('name', 'LIKE', "%{$search}%"))
+                        ->orWhereHas('user', fn($q) => $q->where('name', 'LIKE', "%{$search}%"));
+                });
+            })
+
+            ->when(
+                $category,
+                fn($q) =>
+                $q->whereHas('category', fn($cat) => $cat->where('slug', $category))
+            )
+
+            ->when(
+                !empty($tags),
+                fn($q) =>
+                $q->whereHas('tags', fn($t) => $t->whereIn('slug', $tags))
+            )
+
+            ->when(
+                $author,
+                fn($q) =>
+                $q->whereHas(
+                    'user',
+                    fn($u) =>
+                    $u->where('username', $author)
+                        ->orWhere('name', 'LIKE', "%{$author}%")
+                )
+            )
+
+            ->when(
+                $dateFrom,
+                fn($q) =>
+                $q->whereDate('created_at', '>=', $dateFrom)
+            )
+            ->when(
+                $dateTo,
+                fn($q) =>
+                $q->whereDate('created_at', '<=', $dateTo)
+            )
+
+            ->when($sort, function ($q, $sort) {
+                return match ($sort) {
+                    'oldest' => $q->orderBy('created_at', 'asc'),
+                    'title' => $q->orderBy('title', 'asc'),
+                    'top' => $q->orderByDesc('views'),
+                    'featured' => $q->where('special_role', 2)->latest(),
+                    default => $q->latest(),
+                };
             });
-        }
-
-        // Filter by category
-        if ($category) {
-            $query->whereHas('category', function ($q) use ($category) {
-                $q->where('slug', $category);
-            });
-        }
-
-        // Filter by tags
-        if (!empty($tags)) {
-            $query->whereHas('tags', function ($q) use ($tags) {
-                $q->whereIn('slug', $tags);
-            });
-        }
-
-        // Filter by author
-        if ($author) {
-            $query->whereHas('user', function ($q) use ($author) {
-                $q->where('username', $author)->orWhere('name', 'LIKE', "%{$author}%");
-            });
-        }
-
-        // Filter by date range
-        if ($dateFrom) {
-            $query->whereDate('created_at', '>=', $dateFrom);
-        }
-        if ($dateTo) {
-            $query->whereDate('created_at', '<=', $dateTo);
-        }
-
-        // Sorting
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'title':
-                $query->orderBy('title', 'asc');
-                break;
-            default:
-                $query->orderBy('created_at', 'desc');
-                break;
-        }
 
         $blogs = $query->paginate($perPage);
 
-        return new BlogCollection($blogs);
+        return response()->json([
+            'data' => BlogListResource::collection($blogs->items()),
+            'meta' => [
+                'current_page' => $blogs->currentPage(),
+                'last_page' => $blogs->lastPage(),
+                'per_page' => $blogs->perPage(),
+                'total' => $blogs->total(),
+                'from' => $blogs->firstItem(),
+                'to' => $blogs->lastItem(),
+            ],
+        ]);
     }
+
 
     /**
      * Toggle bookmark for a blog (PROTECTED - Auth Required)
