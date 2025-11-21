@@ -35,7 +35,7 @@
                                         <span
                                             class="position-absolute start-50 translate-middle-x bg-dark text-white small px-2 py-1 rounded opacity-0 d-none">{{ Str::limit($blog->user->name ?? 'Unknown', 15) }}</span>
                                     </div>
-                                    <a href="{{ url('/blogs/?category='.$blog->category->slug) }}"
+                                    <a href="{{ url('/blogs/?category='.$blog?->category?->slug) }}"
                                         class="ms-2 text-muted text-decoration-none hover-color">
                                         — {{ $blog->category->name ?? 'Uncategorized' }}
                                     </a>
@@ -122,10 +122,10 @@
         document.getElementById("load-moree").addEventListener("click", function() {
             const button = this;
             const spinner = document.getElementById("loading-spinner"); // Ambil berdasarkan ID
-            
+
             button.disabled = true; // Nonaktifkan tombol sementara
             spinner.classList.remove("d-none"); // Tampilkan spinner
-    
+
             setTimeout(() => {
                 button.disabled = false; // Aktifkan tombol kembali
                 spinner.classList.add("d-none"); // Sembunyikan spinner lagi
@@ -144,7 +144,7 @@
             }
             return userRoles.some(role => requiredRoles.includes(role));
         }
-        
+
     </script>
     <script>
         function initializePopovers() {
