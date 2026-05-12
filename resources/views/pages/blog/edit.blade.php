@@ -78,7 +78,57 @@
                         </div> --}}
 
                         <div class="mb-4">
-                            <label class="block mb-2 text-sm font-bold text-gray-700" for="content">Content</label>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="block text-sm font-bold text-gray-700 mb-0" for="content">Content</label>
+                                <div class="d-flex gap-2">
+                                    <button type="button" id="btn-ai-advanced-toggle" class="btn btn-sm btn-light">
+                                        <i class="bi bi-sliders me-1"></i> Advanced
+                                    </button>
+                                    <button type="button" id="btn-ai-generate-content" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-stars me-1"></i>
+                                        <span class="btn-label">Generate Content with AI</span>
+                                        <span class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mb-2">AI will scan <strong>Title</strong> &amp; <strong>Category</strong> and generate the content automatically (existing content will be overwritten).</small>
+
+                            <div id="ai-advanced-panel" class="mb-3 d-none">
+                                <div class="card card-bordered bg-light-primary">
+                                    <div class="card-body p-4">
+                                        <div class="mb-3">
+                                            <label class="fw-semibold fs-7 mb-2">
+                                                Key points <span class="text-muted fw-normal">(optional, one point per line)</span>
+                                            </label>
+                                            <textarea name="ai_points" id="ai-points" rows="5"
+                                                class="form-control form-control-solid form-control-sm"
+                                                placeholder="Example:&#10;- Definition and why it matters&#10;- Main benefits for beginners&#10;- 3 practical steps to get started&#10;- Common mistakes to avoid&#10;- Advanced tips and recommended tools"></textarea>
+                                            <small class="text-muted">AI will use these points as the outline / sub-headings of the article.</small>
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="fw-semibold fs-7 mb-2">Writing Tone</label>
+                                                <select id="ai-tone" class="form-select form-select-solid form-select-sm">
+                                                    <option value="professional" selected>Professional (informative)</option>
+                                                    <option value="casual">Casual (relaxed)</option>
+                                                    <option value="friendly">Friendly (warm &amp; personal)</option>
+                                                    <option value="formal">Formal (official)</option>
+                                                    <option value="storytelling">Storytelling (narrative)</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="fw-semibold fs-7 mb-2">Article Length</label>
+                                                <select id="ai-length" class="form-select form-select-solid form-select-sm">
+                                                    <option value="short">Short (400-600 words)</option>
+                                                    <option value="medium" selected>Medium (600-900 words)</option>
+                                                    <option value="long">Long (900-1400 words)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div id="summernote"><?=old('content') ? old('content') : $blog->content?></div>
                             <input type="hidden" name="content" id="content" value="{{ old('content') }}">
                             <x-input-error class="mt-2" :messages="$errors->get('content')" />
@@ -196,4 +246,94 @@
             $('#slug').val($(this).val().toLowerCase().replace(/ /g, '-'));
         });
     });
+
+    // ====== AGC AI (Gemini) ======
+    (function() {
+        const csrf       = '{{ csrf_token() }}';
+        const urlContent = '{{ route('ai.generate-content') }}';
+
+        function showAlert(msg, type) {
+            type = type || 'error';
+            if (window.Swal) {
+                Swal.fire({ icon: type, text: msg, timer: type === 'success' ? 2000 : undefined, showConfirmButton: type !== 'success' });
+            } else {
+                alert(msg);
+            }
+        }
+
+        // ====== Advanced panel toggle ======
+        $('#btn-ai-advanced-toggle').on('click', function() {
+            $('#ai-advanced-panel').toggleClass('d-none');
+            $(this).toggleClass('active');
+        });
+
+        // ====== Generate Content (with advanced options) ======
+        $('#btn-ai-generate-content').on('click', function() {
+            const $btn       = $(this);
+            const title      = ($('#title').val() || '').trim();
+            const categoryId = $('#category_id').val();
+            const points     = ($('#ai-points').val() || '').trim();
+            const tone       = $('#ai-tone').val();
+            const length     = $('#ai-length').val();
+
+            if (!title) {
+                showAlert('Please enter a Title before generating content.', 'warning');
+                $('#title').focus();
+                return;
+            }
+
+            const proceed = function() {
+                $btn.prop('disabled', true);
+                $btn.find('.btn-label').text('Generating...');
+                $btn.find('.spinner-border').removeClass('d-none');
+
+                $.ajax({
+                    url: urlContent,
+                    method: 'POST',
+                    data: {
+                        _token: csrf,
+                        title: title,
+                        category_id: categoryId,
+                        language: 'en',
+                        points: points,
+                        tone: tone,
+                        length: length
+                    },
+                    timeout: 120000
+                }).done(function(res) {
+                    if (res.status === 'success' && res.content) {
+                        $('#summernote').summernote('code', res.content);
+                        $('#content').val(res.content);
+                        showAlert('Content generated successfully.', 'success');
+                    } else {
+                        showAlert(res.message || 'Failed to generate content.', 'error');
+                    }
+                }).fail(function(xhr) {
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to reach the AI server.';
+                    showAlert(msg, 'error');
+                }).always(function() {
+                    $btn.prop('disabled', false);
+                    $btn.find('.btn-label').text('Generate Content with AI');
+                    $btn.find('.spinner-border').addClass('d-none');
+                });
+            };
+
+            if (($('#summernote').summernote('code') || '').replace(/<[^>]*>/g, '').trim() !== '') {
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'question',
+                        title: 'Overwrite existing content?',
+                        text: 'The current editor content will be replaced with the AI result.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, generate',
+                        cancelButtonText: 'Cancel'
+                    }).then(function(r) { if (r.isConfirmed) proceed(); });
+                } else if (confirm('Overwrite existing content with AI result?')) {
+                    proceed();
+                }
+            } else {
+                proceed();
+            }
+        });
+    })();
 </script>

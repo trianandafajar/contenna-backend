@@ -30,7 +30,7 @@
                     </a>
                 </div>
             @endcan
-                <div class="menu-item">
+                {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->is(['page/bookmark', 'page/bookmark/*']) ? 'active ' : '' }}"
                         href="{{ route('bookmark.index') }}">
                         <span class="menu-icon">
@@ -38,7 +38,7 @@
                         </span>
                         <span class="menu-title">Bookmark</span>
                     </a>
-                </div>
+                </div> --}}
 
                 @canany(['users-view', 'roles-view', 'permission-view'])
                     <div class="menu-item menu-labels">
