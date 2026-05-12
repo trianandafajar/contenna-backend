@@ -45,7 +45,7 @@
                     <!--end:Menu item-->
                     <!--begin:Menu item-->
                     <div class="menu-item">
-                        <a class="menu-link {{ request()->is('page/about') ? 'active' : '' }}"
+                        <a class="menu-link {{ request()->is('about') ? 'active' : '' }}"
                             href="{{ route('about') }}">
                             <span class="menu-title">About</span>
                         </a>
@@ -104,7 +104,7 @@
                                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                 </div>
                             @endif
-                            
+
                                 <!--end::Avatar-->
                                 <!--begin::Username-->
                                 <div class="d-flex flex-column">
@@ -178,7 +178,7 @@
             </div> --}}
                         <!--end::Menu item-->
                         <!--begin::Menu item-->
-                        
+
                         <div class="menu-item px-5 my-1">
                             <a href="{{ route('dashboard') }}" class="menu-link px-5">Dashboard</a>
                         </div>

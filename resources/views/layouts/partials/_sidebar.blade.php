@@ -9,7 +9,7 @@
             class="app-sidebar-menu-primary menu menu-column menu-rounded menu-sub-indention menu-state-bullet-primary px-6 mb-5">
             @auth
                 <div class="menu-item">
-                    <a class="menu-link {{ request()->is(['page/dashboard', 'page/dashboard/*']) ? 'active ' : '' }}"
+                    <a class="menu-link {{ request()->is(['admin/dashboard', 'admin/dashboard/*']) ? 'active ' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">
                             <i class="fas fa-home fs-2"></i>
@@ -21,7 +21,7 @@
 
             @can(['blog-view'])
                 <div class="menu-item">
-                    <a class="menu-link {{ request()->is(['page/blog', 'page/blog/*']) ? 'active ' : '' }}"
+                    <a class="menu-link {{ request()->is(['admin/blog', 'admin/blog/*']) ? 'active ' : '' }}"
                         href="{{ route('blog.index') }}">
                         <span class="menu-icon">
                             <i class="fas fa-book fs-2"></i>
@@ -31,7 +31,7 @@
                 </div>
             @endcan
                 {{-- <div class="menu-item">
-                    <a class="menu-link {{ request()->is(['page/bookmark', 'page/bookmark/*']) ? 'active ' : '' }}"
+                    <a class="menu-link {{ request()->is(['admin/bookmark', 'admin/bookmark/*']) ? 'active ' : '' }}"
                         href="{{ route('bookmark.index') }}">
                         <span class="menu-icon">
                             <i class="fas fa-bookmark fs-2"></i>
@@ -50,7 +50,7 @@
 
                 @can(['manage-blog-view'])
                 <div class="menu-item">
-                    <a class="menu-link {{ request()->is(['page/manage-blog', 'page/manage-blog/*']) ? 'active ' : '' }}"
+                    <a class="menu-link {{ request()->is(['admin/manage-blog', 'admin/manage-blog/*']) ? 'active ' : '' }}"
                         href="{{ route('manage-blog.index') }}">
                         <span class="menu-icon">
                             <i class="fas fa-book fs-2"></i>
@@ -172,19 +172,19 @@
                         <span class="menu-link">
                             <span class="menu-icon">
                                 <i
-                                    class="ki-duotone ki-abstract-26 fs-1 {{ request()->is(['page/position', 'page/position/*', 'master/business-type', 'master/business-type/*']) ? 'text-primary' : '' }}">
+                                    class="ki-duotone ki-abstract-26 fs-1 {{ request()->is(['admin/position', 'admin/position/*', 'master/business-type', 'master/business-type/*']) ? 'text-primary' : '' }}">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                 </i>
                             </span>
                             <span
-                                class="menu-title {{ request()->is(['page/position', 'page/position/*', 'master/business-type', 'master/business-type/*']) ? 'text-primary' : '' }}">Masters</span>
+                                class="menu-title {{ request()->is(['admin/position', 'admin/position/*', 'master/business-type', 'master/business-type/*']) ? 'text-primary' : '' }}">Masters</span>
                             <span class="menu-arrow"></span>
                         </span>
 
                         <div class="menu-sub menu-sub-accordion">
                             <div class="menu-item">
-                                <a class="menu-link {{ request()->is(['page/category', 'page/category/*']) ? 'active ' : '' }}"
+                                <a class="menu-link {{ request()->is(['admin/category', 'admin/category/*']) ? 'active ' : '' }}"
                                     href="{{ route('master.position.index') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
@@ -267,11 +267,11 @@
                 {{-- feedback, activity, version --}}
                 @canany(['feedback-view', 'activity-view', 'version-view'])
                     <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ request()->is(['page/feedback', 'page/usd-to-idr', 'page/usd-to-idr/*', 'page/activity-log', 'page/log-version', 'page/log-version/*']) ? 'here show' : '' }}">
+                        class="menu-item menu-accordion {{ request()->is(['admin/feedback', 'admin/usd-to-idr', 'admin/usd-to-idr/*', 'admin/activity-log', 'admin/log-version', 'admin/log-version/*']) ? 'here show' : '' }}">
                         <span class="menu-link">
                             <span class="menu-icon">
                                 <i
-                                    class="ki-duotone ki-more-2 fs-1 {{ request()->is(['page/feedback', 'page/usd-to-idr', 'page/usd-to-idr/*', 'page/activity-log', 'page/log-version', 'page/log-version/*']) ? 'page/text-primary' : '' }}">
+                                    class="ki-duotone ki-more-2 fs-1 {{ request()->is(['admin/feedback', 'admin/usd-to-idr', 'admin/usd-to-idr/*', 'admin/activity-log', 'admin/log-version', 'admin/log-version/*']) ? 'admin/text-primary' : '' }}">
                                     <span class="path1"></span>
                                     <span class="path2"></span>
                                     <span class="path3"></span>
@@ -279,14 +279,14 @@
                                 </i>
                             </span>
                             <span
-                                class="menu-title {{ request()->is(['page/feedback', 'page/feedback/*', 'page/usd-to-idr', 'page/usd-to-idr/*', 'page/activity-log', 'page/log-version', 'page/log-version/*']) ? 'text-primary' : '' }}">Other</span>
+                                class="menu-title {{ request()->is(['admin/feedback', 'admin/feedback/*', 'admin/usd-to-idr', 'admin/usd-to-idr/*', 'admin/activity-log', 'admin/log-version', 'admin/log-version/*']) ? 'text-primary' : '' }}">Other</span>
                             <span class="menu-arrow"></span>
                         </span>
 
                         <div class="menu-sub menu-sub-accordion">
                             @can('users-view')
                                 <div class="menu-item">
-                                    <a class="menu-link {{ request()->is(['page/feedback', 'page/feedback/*']) ? 'active ' : '' }}"
+                                    <a class="menu-link {{ request()->is(['admin/feedback', 'admin/feedback/*']) ? 'active ' : '' }}"
                                         href="{{ route('feedback.index') }}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
@@ -297,7 +297,7 @@
                             @endcan
                             @can('roles-list')
                                 <div class="menu-item">
-                                    <a class="menu-link {{ request()->is(['page/activity-log', 'page/activity-log/*']) ? 'active ' : '' }}"
+                                    <a class="menu-link {{ request()->is(['admin/activity-log', 'admin/activity-log/*']) ? 'active ' : '' }}"
                                         href="{{ route('activity-log.index') }}">
                                         <span class="menu-bullet">
                                             <span class="bullet bullet-dot"></span>
@@ -308,7 +308,7 @@
                             @endcan
                             {{-- @can('permission-view') --}}
                             <div class="menu-item">
-                                <a class="menu-link {{ request()->is(['page/log-version', 'page/log-version/*']) ? 'active ' : '' }}"
+                                <a class="menu-link {{ request()->is(['admin/log-version', 'admin/log-version/*']) ? 'active ' : '' }}"
                                     href="{{ route('log-version.index') }}">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>

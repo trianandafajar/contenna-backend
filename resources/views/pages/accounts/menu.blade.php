@@ -118,21 +118,21 @@
         <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold d-flex flex-wrap">
             <!--begin::Nav item-->
             <li class="nav-item mt-2 me-3">
-                <a class="nav-link text-active-primary py-5 {{ request()->is(['page/account/overview']) ? 'active' : '' }}"
+                <a class="nav-link text-active-primary py-5 {{ request()->is(['account/overview']) ? 'active' : '' }}"
                     href="{{ route('account.profile.overview') }}">Overview</a>
             </li>
             <!--end::Nav item-->
             <li class="nav-item mt-2 me-3">
-                <a class="nav-link text-active-primary py-5 {{ request()->is(['page/account/profile']) ? 'active' : '' }}"
+                <a class="nav-link text-active-primary py-5 {{ request()->is(['account/profile']) ? 'active' : '' }}"
                     href="{{ route('account.profile.edit') }}">Account Settings</a>
             </li>
             <!--end::Nav item-->
             <li class="nav-item mt-2 me-3">
-                <a class="nav-link text-active-primary py-5 {{ request()->is(['page/account/change-password']) ? 'active' : '' }}"
+                <a class="nav-link text-active-primary py-5 {{ request()->is(['account/change-password']) ? 'active' : '' }}"
                     href="{{ route('account.profile.password') }}">Change Password</a>
             </li>
             <!--end::Nav item-->
-        </ul>        
+        </ul>
         <!--begin::Navs-->
     </div>
 </div>

@@ -208,7 +208,7 @@ $(document).ready(function () {
 // Bookmark functionality (Menggunakan event delegation)
 $(document).on("click", ".btn-bookmark", function () {
     if (!isAuthenticated) {
-        window.location.href = "/page/login"; // Redirect jika belum login
+        window.location.href = "/admin/login"; // Redirect jika belum login
         return;
     }
     let button = $(this);
@@ -217,7 +217,7 @@ $(document).on("click", ".btn-bookmark", function () {
     icon.toggleClass("fas fa-bookmark text-primary");
 
     $.ajax({
-        url: "/page/bookmark",
+        url: "/admin/bookmark",
         type: "POST",
         data: {
             blog_id: blogId,

@@ -29,10 +29,10 @@ use App\Http\Controllers\BlogsFilterController;
 
 // Home Menu
 Route::get('/', [DefaultController::class, 'index'])->name('home');
-Route::get('/page/about', [DefaultController::class, 'about'])->name('about');
+Route::get('/about', [DefaultController::class, 'about'])->name('about');
 Route::get('/blogs', [BlogsFilterController::class, 'index'])->name('blogs');
-Route::get('/page/blogs/{blog:slug}', [DefaultController::class, 'showBlog'])->name('blogs.show');
-Route::put('/page/blog/{id}', [BlogController::class, 'update'])->name('blog.update');
+Route::get('/blogs/{blog:slug}', [DefaultController::class, 'showBlog'])->name('blogs.show');
+Route::put('/blog/{id}', [BlogController::class, 'update'])->name('blog.update');
 
 Route::get('/{slug}', [SinglePageController::class, 'show'])->name('single.show');
 
@@ -41,11 +41,6 @@ Route::get('/admin/login', function () {
 });
 
 Route::get('/admin/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::prefix('page/help')->name('help.')->group(function () {
-//     Route::get('/show/{slug}', [HelpController::class, 'show'])->name('show');
-// })->middleware(['guest', 'auth']);
-
 
 Route::middleware('auth')->prefix('admin')->group(function () {
 
@@ -109,6 +104,10 @@ Route::middleware('auth')->prefix('admin')->group(function () {
             return response()->json($tags);
         })->name('tags.search');
 });
+
+Route::post('page/bookmark', [BookmarkController::class, 'toggleBookmark']);
+Route::get('page/bookmark', [BookmarkController::class, 'showBookmark'])->name('bookmark.index');
+Route::delete('/bookmark/delete', [BookmarkController::class, 'deleteBookmark'])->name('bookmark.delete');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/resources.php';

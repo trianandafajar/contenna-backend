@@ -59,7 +59,7 @@
                                                     <span
                                                         class="position-absolute start-50 translate-middle-x bg-dark text-white small px-2 py-1 rounded opacity-0 d-none">{{ Str::limit($blog->user->name ?? 'Unknown', 15) }}</span>
                                                 </div>
-                                                <a href="{{ url('blogs/?category=' . $blog->category->name) }}"
+                                                <a href="{{ url('blogs/?category=' . $blog?->category?->name) }}"
                                                     class="ms-2 text-muted text-decoration-none hover-color">
                                                     — {{ $blog->category->name ?? 'Uncategorized' }}
                                                 </a>
@@ -260,7 +260,7 @@
                                         </div>
                                         <a href="/blogs/category/${blog.category?.slug ?? '#'}" class="ms-2 text-muted text-decoration-none hover-color">— ${blog.category?.name ?? 'Uncategorized'}</a>
                                     </div>
-                                    ${isAuthenticated 
+                                    ${isAuthenticated
                                         ? `<button class="btn p-0 btn-bookmark" data-blog-id="${blog.id}" onclick="toggleBookmark(${blog.id})">
                                                             <i class="${bookmarkIcon} fs-2"></i>
                                                         </button>`
